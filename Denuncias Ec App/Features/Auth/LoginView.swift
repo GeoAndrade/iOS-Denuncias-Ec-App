@@ -14,7 +14,7 @@ struct LoginView: View {
                 VStack(spacing: 12) {
                     Text("DenunciasEcuador")
                         .font(.system(size: 34, weight: .bold))
-                    Text("Registra y consulta reportes ciudadanos desde cualquier provincia del país con tu cuenta institucional.")
+                    Text("Registra y consulta reportes ciudadanos desde cualquier provincia del país con tu cuenta.")
                         .font(.body)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.secondary)
