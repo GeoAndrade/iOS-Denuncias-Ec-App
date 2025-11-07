@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 @main
 struct DenunciasEcuadorApp: App {
@@ -8,7 +9,12 @@ struct DenunciasEcuadorApp: App {
             User.self,
             Report.self
         ])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        let storeURL = Self.makeStoreURL()
+        let configuration = ModelConfiguration(
+            schema: schema,
+            url: storeURL
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
@@ -22,5 +28,16 @@ struct DenunciasEcuadorApp: App {
             RootView()
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    private static func makeStoreURL() -> URL {
+        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let directory = support.appendingPathComponent("DenunciasEcApp", isDirectory: true)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        } catch {
+            print("No se pudo crear el directorio de datos: \(error)")
+        }
+        return directory.appendingPathComponent("default.store")
     }
 }

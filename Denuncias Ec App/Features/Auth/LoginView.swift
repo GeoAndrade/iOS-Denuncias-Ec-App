@@ -8,28 +8,39 @@ struct LoginView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                VStack(spacing: 8) {
+            VStack(spacing: 32) {
+                Spacer()
+
+                VStack(spacing: 12) {
                     Text("DenunciasEcuador")
-                        .font(.largeTitle.weight(.semibold))
-                    Text("Correo + Contraseña")
-                        .font(.subheadline)
+                        .font(.system(size: 34, weight: .bold))
+                    Text("Registra y consulta reportes ciudadanos desde cualquier provincia del país con tu cuenta institucional.")
+                        .font(.body)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.top, 40)
+                .padding(.horizontal)
 
-                VStack(alignment: .leading, spacing: 16) {
-                    TextField("Correo institucional", text: $viewModel.email)
+                VStack(alignment: .leading, spacing: 18) {
+                    Text("Correo")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    TextField("user@example.com", text: $viewModel.email)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
-                        .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .padding(14)
+                        .background(fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
-                    SecureField("Contraseña", text: $viewModel.password)
+                    Text("Contraseña")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    SecureField("Ingresa tu contraseña", text: $viewModel.password)
                         .textContentType(.password)
-                        .padding()
-                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .padding(14)
+                        .background(fieldBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
 
                 if let error = viewModel.errorMessage {
@@ -40,26 +51,38 @@ struct LoginView: View {
                 }
 
                 Button(action: handleSubmit) {
-                    HStack {
+                    HStack(spacing: 10) {
                         if viewModel.isLoading {
                             ProgressView()
+                                .progressViewStyle(.circular)
+                        } else {
+                            Image(systemName: "rectangle.portrait.and.arrow.forward")
+                                .font(.headline)
                         }
-                        Text("Ingresar")
-                            .fontWeight(.semibold)
+                        Text(viewModel.isLoading ? "Ingresando..." : "Ingresar")
+                            .font(.subheadline.weight(.semibold))
                     }
+                    .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
                 .disabled(viewModel.isLoading)
 
                 Spacer()
             }
-            .padding()
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground).ignoresSafeArea())
         }
     }
 
     private func handleSubmit() {
         viewModel.submit(modelContext: modelContext, sessionService: sessionService)
+    }
+
+    private var fieldBackground: Color {
+        Color(.secondarySystemBackground)
     }
 }
 

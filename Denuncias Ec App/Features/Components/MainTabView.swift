@@ -27,6 +27,6 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(sessionService: PreviewSamples.sessionService, userEmail: "demo@uni.edu")
+    MainTabView(sessionService: PreviewSamples.sessionService, userEmail: "user@example.com")
         .modelContainer(PreviewSamples.container)
 }

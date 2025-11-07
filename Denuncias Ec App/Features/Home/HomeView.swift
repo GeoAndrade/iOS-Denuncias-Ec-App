@@ -7,61 +7,88 @@ struct HomeView: View {
     let userEmail: String
 
     @StateObject private var formViewModel = ReportFormViewModel()
-    @StateObject private var publicReportsViewModel = PublicReportsViewModel()
-    @State private var selectedRange: PublicReportRange = .ultimoDia
-    @State private var showLogoutConfirmation = false
-    @State private var confirmationMessage: String?
+    @State private var activeAlert: HomeAlert?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    HomeHeaderView(email: userEmail, onLogoutTap: { showLogoutConfirmation = true })
+                    HomeHeaderView(email: userEmail, onLogoutTap: {
+                        activeAlert = .logout
+                    })
 
                     ReportFormView(viewModel: formViewModel, onSubmit: saveReport)
-
-                    if let confirmationMessage {
-                        Text(confirmationMessage)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    PublicReportsSection(
-                        reports: publicReportsViewModel.reports,
-                        selectedRange: $selectedRange,
-                        isLoading: publicReportsViewModel.isLoading,
-                        errorMessage: publicReportsViewModel.lastError
-                    )
                 }
                 .padding()
             }
+            .background(Color(.systemBackground).ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
-            .background(Color(.systemGroupedBackground))
-            .onAppear(perform: loadPublicReports)
-            .onChange(of: selectedRange) { _ in loadPublicReports() }
-            .confirmationDialog("¿Cerrar sesión?", isPresented: $showLogoutConfirmation, titleVisibility: .visible) {
-                Button("Cerrar sesión", role: .destructive) {
-                    sessionService.logout()
+            .alert(item: $activeAlert) { alert in
+                switch alert {
+                case .logout:
+                    return Alert(
+                        title: Text("Cerrar sesión"),
+                        message: Text("¿Deseas salir de DenunciasEcuador?"),
+                        primaryButton: .destructive(Text("Cerrar sesión")) {
+                            sessionService.logout()
+                        },
+                        secondaryButton: .cancel(Text("Cancelar"))
+                    )
+                case .summary(let draft):
+                    return Alert(
+                        title: Text("Denuncia lista"),
+                        message: Text(summary(for: draft)),
+                        dismissButton: .default(Text("OK")) {
+                            finalizeSave(for: draft)
+                        }
+                    )
                 }
-                Button("Cancelar", role: .cancel) {}
             }
         }
     }
 
     private func saveReport() {
         do {
-            try formViewModel.saveReport(modelContext: modelContext, ownerEmail: userEmail)
-            confirmationMessage = "Denuncia registrada con éxito."
-            loadPublicReports()
+            let draft = try formViewModel.makeDraft(ownerEmail: userEmail)
+            activeAlert = .summary(draft)
         } catch ReportFormError.invalidFields {
-            confirmationMessage = nil
         } catch {
-            confirmationMessage = "No se pudo guardar la denuncia. Intenta nuevamente."
+            formViewModel.errorMessage = "No se pudo preparar la denuncia. Intenta nuevamente."
         }
     }
 
-    private func loadPublicReports() {
-        publicReportsViewModel.loadReports(range: selectedRange, modelContext: modelContext)
+    private func finalizeSave(for draft: ReportDraft) {
+        do {
+            try formViewModel.persist(draft: draft, modelContext: modelContext)
+        } catch {
+            formViewModel.errorMessage = "No se pudo guardar la denuncia. Intenta nuevamente."
+        }
+    }
+
+    private func summary(for draft: ReportDraft) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+
+        return """
+        Título: \(draft.title)
+        Ubicación: \(draft.cityProvince)
+        Fecha: \(formatter.string(from: draft.eventDate))
+        Visibilidad: \(draft.visibility.title)
+        Tipo: \(draft.type.title)
+        """
+    }
+}
+
+private enum HomeAlert: Identifiable {
+    case logout
+    case summary(ReportDraft)
+
+    var id: String {
+        switch self {
+        case .logout: return "logout"
+        case .summary(let draft): return "summary_\(draft.title)"
+        }
     }
 }
 

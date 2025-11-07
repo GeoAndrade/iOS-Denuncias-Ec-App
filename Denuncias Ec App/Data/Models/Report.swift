@@ -27,6 +27,14 @@ enum ReportType: String, Codable, CaseIterable, Identifiable {
         case .delito: return "Delito"
         }
     }
+
+    var iconName: String {
+        switch self {
+        case .aseoYOrnato: return "leaf.fill"
+        case .transitoVial: return "car.fill"
+        case .delito: return "exclamationmark.triangle.fill"
+        }
+    }
 }
 
 @Model

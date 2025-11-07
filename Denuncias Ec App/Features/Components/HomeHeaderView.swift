@@ -16,19 +16,24 @@ struct HomeHeaderView: View {
             }
             Spacer()
             Button(action: onLogoutTap) {
-                Image(systemName: "power")
+                Image(systemName: "rectangle.portrait.and.arrow.right")
                     .font(.title3)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.primary)
+                    .padding(10)
+                    .background(Color(.secondarySystemBackground), in: Circle())
             }
             .accessibilityLabel("Cerrar sesión")
         }
         .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+        )
     }
 }
 
 #Preview {
-    HomeHeaderView(email: "demo@uni.edu", onLogoutTap: {})
+    HomeHeaderView(email: "user@example.com", onLogoutTap: {})
         .padding()
-        .previewLayout(.sizeThatFits)
 }

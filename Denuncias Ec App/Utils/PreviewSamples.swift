@@ -9,12 +9,12 @@ enum PreviewSamples {
         let container = try! ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
 
-        let user = User(email: "demo@uni.edu", password: "123456")
+        let user = User(email: "user@example.com", password: "123456")
         let publicReport = Report(
             title: "Bache en la vía",
             details: "Afecta el carril derecho de la Av. 6 de Diciembre",
             eventDate: .now.addingTimeInterval(-3600),
-            cityProvince: "Quito",
+            cityProvince: "Pichincha, Quito",
             visibility: .publico,
             type: .transitoVial,
             ownerEmail: user.email
@@ -23,7 +23,7 @@ enum PreviewSamples {
             title: "Acumulación de basura",
             details: "Contenedor lleno hace más de dos días",
             eventDate: .now.addingTimeInterval(-86400 * 2),
-            cityProvince: "Cuenca",
+            cityProvince: "Azuay, Cuenca",
             visibility: .privado,
             type: .aseoYOrnato,
             ownerEmail: user.email
@@ -39,7 +39,7 @@ enum PreviewSamples {
 
     static var sessionService: SessionService {
         let service = SessionService()
-        service.login(with: "demo@uni.edu")
+        service.login(with: "user@example.com")
         return service
     }
 
@@ -48,10 +48,10 @@ enum PreviewSamples {
             title: "Fuga de agua",
             details: "Se desperdician litros por minuto",
             eventDate: .now.addingTimeInterval(-5400),
-            cityProvince: "Guayaquil",
+            cityProvince: "Guayas, Guayaquil",
             visibility: .publico,
             type: .aseoYOrnato,
-            ownerEmail: "demo@uni.edu"
+            ownerEmail: "user@example.com"
         )
     }
 }
